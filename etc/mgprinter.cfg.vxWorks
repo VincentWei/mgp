@@ -1,0 +1,6 @@
+
+[Default]
+name=Epson-C65
+ppd=/ata0a/etc/epson-c64.ppd
+device=/lpt/1
+

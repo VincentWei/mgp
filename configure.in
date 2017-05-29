@@ -1,0 +1,115 @@
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+AC_PREREQ(2.59)
+AC_INIT(src/printing.c)
+
+# Checks for programs.
+AC_PROG_LIBTOOL
+AC_PROG_CC
+
+AM_INIT_AUTOMAKE(libmgp,1.2.3)
+AC_CONFIG_HEADER(mgpconfig.h)
+
+AC_PROG_RANLIB
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_C_INLINE
+AC_TYPE_PID_T
+AC_TYPE_SIZE_T
+AC_HEADER_TIME
+AC_C_VOLATILE
+
+# Checks for library functions.
+AC_FUNC_FORK
+AC_FUNC_MEMCMP
+AC_TYPE_SIGNAL
+AC_FUNC_VPRINTF
+AC_CHECK_FUNCS([gettimeofday memset pow setlocale sqrt strcasecmp strchr strdup strncasecmp strtol strtoul])
+
+# Checks for header files.
+AC_HEADER_STDC
+AC_HEADER_SYS_WAIT
+AC_CHECK_HEADERS([fcntl.h limits.h locale.h stddef.h stdlib.h string.h sys/time.h unistd.h])
+
+build_nounix="no"
+AC_ARG_ENABLE(nounix,
+[  --enable-nounix              Build on nounix system <default=no>],
+build_nounix=$enableval)
+
+# check for newgal or oldgal interface.
+use_newgal="no"
+AC_CHECK_DECLS(_USE_NEWGAL, use_newgal="yes", foo=bar, [#include <minigui/common.h>])
+
+if test "x$build_nounix" = "xyes"; then
+    AC_DEFINE(NOUNIX, 1, [Build on nounix system])
+fi
+AC_DEFINE_UNQUOTED(PATH_DRIVER, "", [Define driver path for nounix system.])
+
+have_libminigui="no"
+AC_CHECK_HEADERS(minigui/common.h, have_libminigui=yes, foo=bar)
+
+dnl ========================================================================
+dnl check for run-time mode of MiniGUI
+dnl ========================================================================
+threads_version="no"
+AC_CHECK_DECLS(_MGRM_THREADS, threads_version="yes", foo=bar, [#include <minigui/common.h>])
+
+procs_version="no"
+AC_CHECK_DECLS(_MGRM_PROCESSES, procs_version="yes", foo=bar, [#include <minigui/common.h>])
+
+standalone_version="no"
+AC_CHECK_DECLS(_MGRM_STANDALONE, standalone_version="yes", foo=bar, [#include <minigui/common.h>])
+
+if test "x$threads_version" = "xyes"; then
+    CFLAGS="$CFLAGS -D_REENTRANT"
+    APP_LIBS="$APP_LIBS -lpthread -lminigui_ths"
+else
+    if test "x$standalone_version" = "xyes"; then
+        APP_LIBS="$APP_LIBS -lminigui_sa"
+    else
+        APP_LIBS="$APP_LIBS -lminigui_procs"
+    fi  
+
+    lib_pthread="yes"
+    AC_CHECK_DECLS(_MGGAL_SHADOW, APP_LIBS="$APP_LIBS -lpthread", lib_pthread="no", [#include <minigui/common.h>])
+    if test "x$lib_pthread" = "xno"; then
+        AC_CHECK_DECLS(_MGGAL_MLSHADOW, APP_LIBS="$APP_LIBS -lpthread", no_pthread="no", [#include <minigui/common.h>])
+    fi
+fi
+
+AC_CHECK_DECLS(_HAVE_MATH_LIB, APP_LIBS="$APP_LIBS -lm", foo=bar, [#include <minigui/common.h>])
+AC_CHECK_DECLS(_MGIMAGE_PNG, APP_LIBS="$APP_LIBS -lpng", foo=bar, [#include <minigui/common.h>])
+AC_CHECK_DECLS(_MGIMAGE_JPG, APP_LIBS="$APP_LIBS -ljpeg", foo=bar, [#include <minigui/common.h>])
+AC_CHECK_DECLS(_MGFONT_TTF, APP_LIBS="$APP_LIBS -lttf", foo=bar, [#include <minigui/common.h>])
+AC_CHECK_DECLS(_MGFONT_FT2, APP_LIBS="$APP_LIBS -lfreetype", foo=bar, [#include <minigui/common.h>])
+
+AM_CONDITIONAL(MGRM_THREADS, test "x$threads_version" = "xyes")
+AM_CONDITIONAL(MGRM_PROCESSES, test "x$procs_version" = "xyes")
+AM_CONDITIONAL(MGRM_STANDALONE, test "x$standalone_version" = "xyes")
+AM_CONDITIONAL(USE_NEWGAL, test "x$use_newgal" = "xyes")
+
+AC_SUBST(APP_LIBS)
+
+AC_CONFIG_FILES([Makefile
+                 build/Makefile
+                 etc/Makefile
+                 examples/Makefile
+                 filter/Makefile
+                 filter/epc65/Makefile
+                 filter/hplj/Makefile
+                 filter/bmp/Makefile
+                 include/Makefile
+                 ppds/Makefile
+                 src/Makefile])
+AC_OUTPUT
+
+if test "x$have_libminigui" != "xyes"; then
+    AC_MSG_WARN([
+		MiniGUI is not properly installed on the system. You need 
+        MiniGUI Ver 3.0.1 or later for building this package. 
+        Please configure and install MiniGUI first.
+    ])
+fi
+

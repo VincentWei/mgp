@@ -1,0 +1,23 @@
+# rules for pc-vxworks 
+
+AS=
+CC=ccpentium
+CXX=c++pentium
+CPP=ccpentium
+AR=arpentium
+RANLIB=ranlibpentium
+MAKE=/usr/bin/make
+
+ARFLAGS=crus
+COFLAG=-c
+
+OBJ=o
+LIBA=a
+
+PREFIX=c:/cross
+MINIGUIPATH=c:/cross
+TARGET_DIR=c:/Tornado2.2x86/target
+
+INCS+=-I${TARGET_DIR}/h -I${TARGET_DIR}/h/ugl/ext/jpeg -I${MINIGUIPATH}/include/minigui 
+
+CFLAGS+=-g -O2 -mcpu=pentium  -march=pentium -Wall  -MD -DTOOL_FAMILY=gnu -DTOOL=gnu -D_WRS_KERNEL -DCPU=PENTIUM -DVxWorks

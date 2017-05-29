@@ -1,0 +1,29 @@
+# Top makefile for building the mgp libraries
+#     and GNU Make
+# Useful for non-gcc compilers
+# Use: make -f makefile.ng [options]
+
+###############################################################################
+
+# This is the top project directory
+TOPPROJALL = 1
+TOPLOOP=1
+TOP_DIR=.
+
+# sub lib or install directories
+SUB_DIRS = src include
+
+###############################################################################
+
+# Includes the common make defines
+include rules.make
+
+###############################################################################
+
+
+installdirs :: force
+	-mkdir $(prefix)
+	-mkdir $(includedir)
+	-mkdir $(libdir)
+
+

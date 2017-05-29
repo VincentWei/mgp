@@ -1,0 +1,29 @@
+TOP_DIR=..
+include Makefile.am
+AM_CFLAGS = $(INCLUDES)
+
+DRIVER_BMP = ../filter/bmp/rastertobmp.c
+DRIVER_HP = ../filter/hplj/rastertohp.c
+DRIVER_EPSON = ../filter/epc65/print-color.c \
+		../filter/epc65/print-dither-matrices.c \
+		../filter/epc65/print-dither.c \
+		../filter/epc65/print-escp2-data.c \
+		../filter/epc65/print-escp2.c \
+		../filter/epc65/print-util.c \
+		../filter/epc65/print-weave.c \
+		../filter/epc65/rastertoepson.c \
+		../filter/epc65/epson.h \
+		../filter/epc65/epson_i.h \
+		../filter/epc65/print-dither.h \
+		../filter/epc65/print-escp2.h \
+		../filter/epc65/quickmatrix257.h \
+		../filter/epc65/ran.367.179.h \
+		../filter/epc65/ran.509.131.h
+
+LIB_NAME = libmgprinter
+LIBA = a
+SRC_FILES = $(libmgprinter_a_SOURCES) $(DRIVER_BMP) $(DRIVER_HP) $(DRIVER_EPSON)
+
+include ../rules.make
+install::
+	$(CP) $(LIB_NAME).$(LIBA) $(prefix)\lib\$(LIB_NAME).$(LIBA)
